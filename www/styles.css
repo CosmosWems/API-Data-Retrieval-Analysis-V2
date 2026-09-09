@@ -1,0 +1,418 @@
+/* ================================================================
+   styles.css  –  OpenAQ Explorer  v2.0.0
+   ================================================================ */
+
+/* ---- CSS custom properties: DARK theme (default) ----------- */
+body.dark-theme,
+body {
+  --bg-base      : #0d1117;
+  --bg-surface   : #161b22;
+  --bg-raised    : #1f2937;
+  --border-dim   : #21262d;
+  --border-mid   : #30363d;
+  --text-bright  : #e6edf3;
+  --text-base    : #c9d1d9;
+  --text-muted   : #8b949e;
+  --text-label   : #aed6f1;
+  --accent-cyan  : #39c5cf;
+  --accent-green : #56d364;
+  --accent-green2: #3fb950;
+  --accent-amber : #d29922;
+  --accent-red   : #f85149;
+  --font-mono    : 'Share Tech Mono', 'Courier New', monospace;
+}
+
+/* ---- CSS custom properties: LIGHT theme -------------------- */
+body.light-theme {
+  --bg-base      : #f6f8fa;
+  --bg-surface   : #ffffff;
+  --bg-raised    : #eaf0f6;
+  --border-dim   : #d0d7de;
+  --border-mid   : #b7c0ca;
+  --text-bright  : #1f2937;
+  --text-base    : #24292f;
+  --text-muted   : #57606a;
+  --text-label   : #1a4160;
+  --accent-cyan  : #0969da;
+  --accent-green : #1a7f37;
+  --accent-green2: #2da44e;
+  --accent-amber : #9a6700;
+  --accent-red   : #cf222e;
+  --font-mono    : 'Share Tech Mono', 'Courier New', monospace;
+}
+
+/* ---- Light theme: content + sidebar overrides -------------- */
+body.light-theme .content-wrapper,
+body.light-theme .right-side {
+  background-color: #f6f8fa !important;
+}
+body.light-theme .skin-blue .main-sidebar {
+  background: #1a2c42 !important;  /* keep sidebar dark for legibility */
+}
+body.light-theme .box {
+  background: #ffffff;
+  border-top-color: #b7c0ca;
+  color: #24292f;
+}
+body.light-theme .box-header {
+  color: #1f2937 !important;
+}
+body.light-theme .box-body {
+  background: #ffffff;
+  color: #24292f;
+}
+body.light-theme .sec-hdr {
+  color: #154360;
+  border-bottom-color: #2471a3;
+}
+body.light-theme .help-dl dt { color: #154360; }
+body.light-theme .help-dl dd { color: #5d6d7e; }
+body.light-theme .plot-info-bar { background: #f0f4f8; color: #2c3e50; }
+body.light-theme .main-footer   { background: #f6f8fa; color: #6c737a; border-top-color: #d0d7de; }
+body.light-theme .status-neutral { background: #f0f4f8; color: #546e7a; }
+body.light-theme .status-ok      { background: #e8f8f0; color: #1a4731; }
+body.light-theme .status-warn    { background: #fef9e7; color: #7d6608; }
+body.light-theme .status-error   { background: #fdf3f3; color: #7b241c; }
+body.light-theme pre             { background: #f4f6f7 !important; color: #24292f !important; }
+body.light-theme .table          { color: #24292f; }
+body.light-theme .table-hover > tbody > tr:hover { background-color: #eaf0f6; }
+
+/* ---- Theme toggle button ----------------------------------- */
+#theme-toggle-btn {
+  background    : transparent;
+  border        : 1px solid rgba(255,255,255,.25);
+  border-radius : 5px;
+  color         : #aed6f1;
+  cursor        : pointer;
+  font-size     : 12px;
+  font-family   : 'Share Tech Mono', monospace;
+  padding       : 4px 10px;
+  margin        : 10px 6px 0;
+  transition    : background .2s, border-color .2s, color .2s;
+  white-space   : nowrap;
+  -webkit-appearance: none;
+  -moz-appearance   : none;
+  appearance        : none;
+  outline       : none;
+}
+#theme-toggle-btn:hover {
+  background    : rgba(99,179,237,.15);
+  border-color  : #63b3ed;
+  color         : #e8f4fd;
+}
+#theme-toggle-btn:focus {
+  outline       : 2px solid #63b3ed;
+  outline-offset: 2px;
+}
+
+/* ---- Google Font -------------------------------------------- */
+body, .content-wrapper, .main-sidebar, .left-side {
+  font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif !important;
+}
+
+/* ---- Sidebar tweaks ----------------------------------------- */
+.skin-blue .main-sidebar { background: #1a2c42; }
+.skin-blue .main-sidebar .sidebar-menu > li.active > a,
+.skin-blue .main-sidebar .sidebar-menu > li > a:hover {
+  background: #2471a3;
+  border-left: 4px solid #aed6f1;
+}
+.skin-blue .main-sidebar .sidebar-menu > li > a {
+  border-left: 4px solid transparent;
+  transition: all .15s ease;
+}
+
+/* ---- API Key Panel ------------------------------------------ */
+.api-key-panel {
+  padding: 14px 14px 10px;
+  background: #122232;
+  border-bottom: 1px solid #2c4a62;
+  margin-bottom: 6px;
+}
+.api-key-panel label {
+  color: #aed6f1;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+.api-key-panel .form-control {
+  background: #1e3450;
+  border: 1px solid #2c5282;
+  color: #e8f4fd;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.api-key-panel .form-control:focus {
+  border-color: #63b3ed;
+  box-shadow: 0 0 0 2px rgba(99,179,237,.25);
+}
+
+/* ---- Connection status badge -------------------------------- */
+.status-footer {
+  padding: 10px 14px;
+  border-top: 1px solid #2c4a62;
+  margin-top: auto;
+}
+.conn-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  width: 100%;
+  justify-content: center;
+}
+.conn-ok      { background: #1a4731; color: #6fcf97; border: 1px solid #276749; }
+.conn-fail    { background: #4a1515; color: #fc8181; border: 1px solid #822727; }
+.conn-testing { background: #2d3748; color: #90cdf4; border: 1px solid #2b6cb0; }
+
+/* ---- Section headers ---------------------------------------- */
+.sec-hdr {
+  font-size: 17px;
+  font-weight: 700;
+  color: #154360;
+  padding: 0 0 12px 0;
+  border-bottom: 3px solid #2471a3;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.sec-hdr .fa, .sec-hdr .glyphicon { color: #2471a3; }
+
+/* ---- Status / alert boxes ----------------------------------- */
+.status-box {
+  border-radius: 7px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+.status-neutral { background: #f0f4f8; border-left: 4px solid #90a4ae; color: #546e7a; }
+.status-ok      { background: #e8f8f0; border-left: 4px solid #2e7d52; color: #1a4731; }
+.status-warn    { background: #fef9e7; border-left: 4px solid #d4ac0d; color: #7d6608; }
+.status-error   { background: #fdf3f3; border-left: 4px solid #c0392b; color: #7b241c; }
+
+/* ---- Location cards ----------------------------------------- */
+.scroll-area {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.scroll-area::-webkit-scrollbar { width: 6px; }
+.scroll-area::-webkit-scrollbar-thumb { background: #bdc3c7; border-radius: 3px; }
+
+.loc-card {
+  background: #fff;
+  border: 1px solid #e0e6ed;
+  border-left: 4px solid #aed6f1;
+  border-radius: 8px;
+  padding: 10px 13px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all .15s ease;
+}
+.loc-card:hover { border-left-color: #2471a3; background: #f4f8fb; transform: translateX(2px); }
+.loc-card.selected { border-left-color: #27ae60; background: #eafaf1; border-color: #a9dfbf; }
+
+.loc-card-title { font-weight: 700; font-size: 13.5px; color: #154360; margin-bottom: 3px; }
+.loc-card-sub   { font-size: 12px; color: #566573; margin-bottom: 3px; }
+.loc-card-meta  { font-size: 11px; color: #909090; }
+
+.loc-card-badge {
+  position: absolute;
+  top: 8px; right: 10px;
+  background: #d6eaf8;
+  color: #1a5276;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---- Parameter chips ---------------------------------------- */
+.param-chip, .param-chip-sm {
+  display: inline-block;
+  background: #ebf5fb;
+  color: #1a5276;
+  border: 1px solid #aed6f1;
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 3px 2px;
+}
+.param-chip-sm { padding: 2px 7px; font-size: 11px; }
+
+.param-id {
+  display: inline-block;
+  background: #e8eaf6;
+  color: #3949ab;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---- Plot info bar ------------------------------------------ */
+.plot-info-bar {
+  background: #f0f4f8;
+  border-left: 4px solid #2471a3;
+  border-radius: 5px;
+  padding: 8px 12px;
+  color: #2c3e50;
+  line-height: 1.55;
+}
+
+/* ---- Progress bars ------------------------------------------ */
+.progress { height: 14px; border-radius: 7px; background: #eaecee; overflow: hidden; }
+.progress-bar { height: 14px; border-radius: 7px; text-align: right;
+                padding-right: 6px; font-size: 11px; font-weight: 600;
+                line-height: 14px; transition: width .5s ease; color: #fff; }
+
+/* ---- Coordinate pill ---------------------------------------- */
+.coord-pill {
+  background: #eaf2fb;
+  border: 1px solid #aed6f1;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: #1a5276;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---- Help DL list ------------------------------------------- */
+.help-dl dt { font-weight: 700; color: #154360; margin-top: 10px; }
+.help-dl dd { margin-left: 14px; color: #5d6d7e; font-size: 13px; }
+
+/* ---- Main footer -------------------------------------------- */
+.main-footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 11.5px;
+  color: #909090;
+  border-top: 1px solid #eaecee;
+  margin-top: 20px;
+}
+
+/* ---- Box header tweaks -------------------------------------- */
+.box-header .box-title { font-size: 14px; font-weight: 700; letter-spacing: .01em; }
+.box.box-solid.box-primary > .box-header { background: #2471a3; }
+.box.box-solid.box-success > .box-header { background: #1e8449; }
+.box.box-solid.box-warning > .box-header { background: #d68910; }
+.box.box-solid.box-info    > .box-header { background: #1a759f; }
+.box.box-solid.box-danger  > .box-header { background: #922b21; }
+
+/* ---- Value boxes -------------------------------------------- */
+.small-box { border-radius: 8px !important; }
+
+/* ---- DT table adjustments ----------------------------------- */
+table.dataTable thead th { background: #f4f8fb; color: #154360; font-size: 12.5px; }
+
+/* ---- Checkbox group tighten --------------------------------- */
+.shiny-input-container .checkbox { margin-top: 5px; margin-bottom: 5px; }
+.checkbox label { font-size: 12.5px; }
+
+/* ---- selectize / select inputs ------------------------------ */
+.selectize-input, .form-control {
+  border-radius: 6px !important;
+  font-size: 13px !important;
+}
+
+/* ---- Notification tweaks ------------------------------------ */
+.shiny-notification {
+  font-size: 13.5px !important;
+  border-radius: 8px !important;
+  max-width: 420px !important;
+}
+
+/* ---- Responsive: narrow viewport ---------------------------- */
+@media (max-width: 768px) {
+  .sec-hdr { font-size: 14px; }
+  .loc-card-title { font-size: 12.5px; }
+}
+
+/* ================================================================
+   30.  RATE-LIMIT GAUGE
+================================================================ */
+.rl-gauge {
+  border-radius : 4px;
+  padding       : 8px 10px;
+  margin        : 8px 0;
+  font-family   : var(--font-mono);
+  font-size     : 11px;
+  border        : 1px solid var(--border-dim);
+  background    : var(--bg-surface);
+}
+.rl-ok     { border-left: 3px solid var(--accent-green); }
+.rl-warn   { border-left: 3px solid var(--accent-amber); }
+.rl-danger { border-left: 3px solid var(--accent-red);
+             animation: rl-pulse 1.2s infinite; }
+
+@keyframes rl-pulse {
+  0%,100% { border-left-color: var(--accent-red); }
+  50%      { border-left-color: #ff8a80; }
+}
+.rl-row   { display:flex; justify-content:space-between; }
+.rl-label { color: var(--text-label); font-weight:700; letter-spacing:.04em; }
+.rl-nums  { color: var(--accent-cyan); font-weight:700; }
+.rl-sub   { color: var(--text-muted); font-size:10.5px; }
+.rl-bar-bg {
+  height:6px; background:var(--bg-base); border-radius:3px;
+  margin-top:5px; overflow:hidden;
+}
+.rl-bar-fill {
+  height:6px; border-radius:3px;
+  transition: width .6s ease, background .4s ease;
+}
+
+/* ================================================================
+   31.  BATCH PROCESSING TAB
+================================================================ */
+.batch-mode-panel {
+  background   : var(--bg-surface);
+  border       : 1px solid var(--border-mid);
+  border-radius: 4px;
+  padding      : 14px;
+  margin-bottom: 6px;
+}
+.batch-file-info {
+  background   : var(--bg-base);
+  border       : 1px solid var(--border-dim);
+  border-radius: 3px;
+  padding      : 6px 10px;
+  font-family  : var(--font-mono);
+  font-size    : 11.5px;
+  color        : var(--accent-green2);
+  margin-bottom: 6px;
+}
+.station-name-row {
+  display     : flex;
+  align-items : center;
+  gap         : 10px;
+  margin-bottom: 6px;
+  padding     : 5px 8px;
+  background  : var(--bg-surface);
+  border-radius: 3px;
+  border-left : 3px solid var(--accent-cyan);
+}
+.station-idx {
+  font-family : var(--font-mono);
+  color       : var(--accent-cyan);
+  font-weight : 700;
+  min-width   : 22px;
+}
+.station-fname {
+  color       : var(--text-muted);
+  font-size   : 11px;
+  font-family : var(--font-mono);
+  flex        : 1;
+  white-space : nowrap;
+  overflow    : hidden;
+  text-overflow: ellipsis;
+}
