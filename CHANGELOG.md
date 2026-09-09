@@ -1,16 +1,11 @@
 # Changelog
 
-All notable changes for this release are documented below, comparing the
-current app (with **Batch File Processing**) against the prior version,
-which did not have a Batch Processing tab.
+All notable changes for this release are documented below.
 
-> Version numbers weren't available in the files reviewed (`APP_VERSION` is
-> set in `global.R`, not provided). Replace the header below with your
-> actual version tag, e.g. `## [2.0.0] - 2026-09-08`.
 
 ---
 
-## [Unreleased] — Batch File Processing added
+## [Version 2.0.0] — Batch File Processing added
 
 ### Added
 
