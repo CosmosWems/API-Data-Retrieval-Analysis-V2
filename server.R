@@ -1,19 +1,5 @@
 # ================================================================
 #  server.R  –  API Data Retrieval & Analysis
-#
-#  Fixes applied:
-#  1. sensors_chk_ui: now renders an actual checkboxGroupInput
-#     from rv$sensors_flat (no more missing checkbox UI).
-#  2. btn_fetch observer: uses rv$sensors_flat; guards against
-#     empty sensor_list; nrow() check instead of length() on dfs.
-#  3. fetch_measurements: result NULL / empty handled gracefully –
-#     no "replacement length mismatch" crash.
-#  4. status_html available from global.R (no "not found" error).
-#  5. .build_params: all pollutant inputs guard against NULL.
-#  6. data_preview_tbl: formatRound only on numeric columns.
-#  7. output$fetch_status_ui initialised as renderUI(NULL) once
-#     at server startup so it exists before btn_fetch fires.
-# ================================================================
 
 server <- function(input, output, session) {
 
@@ -87,6 +73,53 @@ server <- function(input, output, session) {
     showNotification("Disconnected.", type = "warning", duration = 3)
   })
 
+  observeEvent(input$btn_clear_session, {
+    showModal(modalDialog(
+      title = "Clear Session Data?",
+      "This clears search results, selected sensors, fetched and uploaded analysis data, and batch results for this session. Your API connection and key will be kept.",
+      footer = tagList(
+        modalButton("Cancel"),
+        actionButton("confirm_clear_session", "Clear Session Data",
+                     class = "btn-danger")
+      ),
+      easyClose = TRUE
+    ))
+  })
+
+  observeEvent(input$confirm_clear_session, {
+    removeModal()
+
+    rv$locations       <- NULL
+    rv$sel_location    <- NULL
+    rv$sensors_raw     <- NULL
+    rv$sensors_flat    <- NULL
+    rv$fetched_data    <- NULL
+    rv$fetch_meta      <- NULL
+    rv$analysis_data   <- NULL
+    rv$batch_mode      <- "stack"
+    rv$batch_stacked   <- NULL
+    rv$batch_merged    <- NULL
+    rv$batch_active    <- NULL
+    rv$batch_station_col <- "station"
+    rv$batch_meta      <- NULL
+
+    output$fetch_status_ui <- renderUI(NULL)
+    updateTextInput(session, "sn_city", value = "")
+    updateRadioButtons(session, "data_src", selected = "fetched")
+    updateRadioButtons(session, "batch_mode_radio", selected = "stack")
+    session$sendCustomMessage("clearSessionFiles", NULL)
+
+    leafletProxy("main_map") %>%
+      clearGroup("stations") %>%
+      clearGroup("sel_pt") %>%
+      clearGroup("click_pt") %>%
+      clearShapes() %>%
+      setView(lng = 15, lat = 10, zoom = 2)
+
+    showNotification("Session data cleared. You can start a new analysis.",
+                     type = "message", duration = 5)
+  })
+
   # ============================================================
   #  EXPLORER – UI helpers
   # ============================================================
@@ -95,7 +128,11 @@ server <- function(input, output, session) {
       return(tags$p("Connect first to load countries.", style = "color:#999;"))
     ch <- setNames(as.character(rv$countries$id),
                    paste0(rv$countries$name, " (", rv$countries$code, ")"))
-    selectizeInput("sel_country", "Country:", choices = ch, selected = NULL,
+    ghana <- which(toupper(as.character(rv$countries$code)) == "GH")
+    selected_country <- if (length(ghana) > 0)
+      as.character(rv$countries$id[ghana[1]]) else NULL
+    selectizeInput("sel_country", "Country:", choices = ch,
+                   selected = selected_country,
                    options = list(placeholder = "Type to search\u2026"))
   })
 
@@ -124,7 +161,7 @@ server <- function(input, output, session) {
   # ============================================================
   output$main_map <- renderLeaflet({
     leaflet() %>%
-      addProviderTiles("CartoDB.Positron",
+      addProviderTiles("OpenStreetMap",
                        options = providerTileOptions(noWrap = TRUE)) %>%
       setView(lng = 15, lat = 10, zoom = 2) %>%
       addDrawToolbar(
