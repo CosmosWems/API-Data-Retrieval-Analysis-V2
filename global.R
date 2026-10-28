@@ -103,8 +103,6 @@ FACET_TYPES <- c("default","month","season","weekday","year","weekend")
 
 # Map tile providers
 MAP_TILES <- list(
-  "CartoDB Light"    = "CartoDB.Positron",
-  "CartoDB Dark"     = "CartoDB.DarkMatter",
   "OpenStreetMap"    = "OpenStreetMap",
   "Satellite (ESRI)" = "Esri.WorldImagery",
   "Topo (ESRI)"      = "Esri.WorldTopoMap"
