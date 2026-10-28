@@ -41,6 +41,93 @@ body.light-theme {
   --font-mono    : 'Share Tech Mono', 'Courier New', monospace;
 }
 
+/* ---- High-contrast theme for improved readability ---------- */
+body.high-contrast-theme {
+  --bg-base      : #000000;
+  --bg-surface   : #000000;
+  --bg-raised    : #111111;
+  --border-dim   : #ffffff;
+  --border-mid   : #ffffff;
+  --text-bright  : #ffffff;
+  --text-base    : #ffffff;
+  --text-muted   : #f0f0f0;
+  --text-label   : #ffff00;
+  --accent-cyan  : #00ffff;
+  --accent-green : #00ff00;
+  --accent-green2: #00ff00;
+  --accent-amber : #ffff00;
+  --accent-red   : #ff6b6b;
+  --font-mono    : 'Share Tech Mono', 'Courier New', monospace;
+}
+
+body.high-contrast-theme,
+body.high-contrast-theme .content-wrapper,
+body.high-contrast-theme .right-side,
+body.high-contrast-theme .main-sidebar,
+body.high-contrast-theme .box,
+body.high-contrast-theme .box-body,
+body.high-contrast-theme .box-header {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+body.high-contrast-theme .main-sidebar,
+body.high-contrast-theme .box,
+body.high-contrast-theme .form-control,
+body.high-contrast-theme .selectize-input {
+  border-color: #ffffff !important;
+}
+body.high-contrast-theme .box.box-solid > .box-header {
+  background: #000000 !important;
+  color: #ffff00 !important;
+}
+body.high-contrast-theme .box-header .box-title,
+body.high-contrast-theme .sec-hdr,
+body.high-contrast-theme .sec-hdr .fa,
+body.high-contrast-theme .sec-hdr .glyphicon,
+body.high-contrast-theme .help-dl dt,
+body.high-contrast-theme .rl-label {
+  color: #ffff00 !important;
+}
+body.high-contrast-theme p,
+body.high-contrast-theme li,
+body.high-contrast-theme dd,
+body.high-contrast-theme dt,
+body.high-contrast-theme label,
+body.high-contrast-theme small,
+body.high-contrast-theme .box-body,
+body.high-contrast-theme .box-body span,
+body.high-contrast-theme .box-body div,
+body.high-contrast-theme .table,
+body.high-contrast-theme .table > tbody > tr > td {
+  color: #ffffff !important;
+}
+body.high-contrast-theme a {
+  color: #ffff00 !important;
+  text-decoration: underline;
+}
+body.high-contrast-theme input,
+body.high-contrast-theme select,
+body.high-contrast-theme textarea,
+body.high-contrast-theme .selectize-input,
+body.high-contrast-theme .selectize-dropdown {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+body.high-contrast-theme button,
+body.high-contrast-theme .btn {
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+body.high-contrast-theme :focus {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px;
+}
+body.high-contrast-theme .main-footer {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-top-color: #ffffff !important;
+}
+
 /* ---- Light theme: content + sidebar overrides -------------- */
 body.light-theme .content-wrapper,
 body.light-theme .right-side {
@@ -76,6 +163,24 @@ body.light-theme .status-error   { background: #fdf3f3; color: #7b241c; }
 body.light-theme pre             { background: #f4f6f7 !important; color: #24292f !important; }
 body.light-theme .table          { color: #24292f; }
 body.light-theme .table-hover > tbody > tr:hover { background-color: #eaf0f6; }
+
+/* About content uses larger type and stronger contrast in every theme. */
+#about .box-body p,
+#about .box-body li,
+#about .box-body dd {
+  font-size: 15px !important;
+  line-height: 1.75 !important;
+}
+#about .box-body p,
+#about .box-body li,
+#about .box-body dd,
+#about .box-body .help-dl dd {
+  color: var(--text-bright) !important;
+}
+#about .box-body dt {
+  color: var(--text-label) !important;
+  font-size: 15px !important;
+}
 
 /* ---- Theme toggle button ----------------------------------- */
 #theme-toggle-btn {
