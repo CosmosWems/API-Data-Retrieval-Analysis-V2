@@ -18,6 +18,8 @@ It combines three things into one dashboard:
   plots, trend analysis, and more)
 - **Batch file tools** — stack daily exports from one station, or merge files
   from many stations into a single comparative dataset
+- **Readable display and session reset** — choose dark, light, or high-contrast
+  colors, and clear the current session's analysis data before starting over
 
 ---
 
@@ -46,6 +48,13 @@ It combines three things into one dashboard:
 7. Download the plot (PNG/PDF/SVG) or the data (CSV/Excel/ZIP).
 8. Alternatively, upload your own CSV directly in the Analysis tab, or go to
    **Batch Processing** to combine several files first.
+
+The Country search defaults to **Ghana (GH)** when the country list is loaded,
+and the map uses OpenStreetMap by default. Use the theme button in the header to
+cycle through dark, light, and high-contrast display modes. **Clear Session
+Data** in the sidebar clears current search, fetch, upload, and analysis results
+for this session while keeping the API connection; confirm the action in the
+dialog before it takes effect.
 
 ### Required CSV format (for direct upload or batch files)
 
