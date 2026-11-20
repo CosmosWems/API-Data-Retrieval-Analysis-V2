@@ -13,9 +13,10 @@ CSV files — including batch-processing many station files at once.
 It combines three things into one dashboard:
 
 - **OpenAQ v3 API** — live station and sensor discovery + measurement retrieval
-- **[openair](https://davidcarslaw.github.io/openair/) R package** — 15 built-in
-  atmospheric analysis / plot types (time series, calendar, wind rose, polar
-  plots, trend analysis, and more)
+- **[openair](https://davidcarslaw.github.io/openair/) R package** — atmospheric
+  analysis (time series, calendar, wind rose, polar plots, trend analysis, and more)
+- **ggplot2 analysis plots** — distribution, correlation, time evolution, and
+  part-to-whole views, guided by [From Data to Viz](https://www.data-to-viz.com/#portfolio)
 - **Batch file tools** — stack daily exports from one station, or merge files
   from many stations into a single comparative dataset
 - **Readable display and session reset** — choose dark, light, or high-contrast
@@ -29,11 +30,12 @@ It combines three things into one dashboard:
 |---|---|
 | 🔍 **Location Explorer** | Find monitoring stations by city/name, coordinates + radius, bounding box, or country |
 | 📥 **Fetch Data** | Tick sensors at a selected station, choose raw/hourly/daily aggregation and a date range, pull measurements into an openair-ready wide table |
-| 📊 **Analysis** | Run any of 15 `openair` plot types on fetched data or an uploaded CSV; view model-evaluation statistics; export plots (PNG/PDF/SVG) and data (CSV/RDS/Excel/ZIP) |
+| 📊 **Analysis** | Run openair and additional ggplot2 analyses on fetched data or an uploaded CSV; view model-evaluation statistics; export plots (PNG/PDF/SVG) and data (CSV/RDS/Excel/ZIP) |
 | 📦 **Export** | Download the current dataset and metadata (locations, sensors, fetch summary) in multiple formats |
-| 🗂 **Batch Processing** | Stack or merge multiple uploaded files, run QC checks, and generate comparative plots across stations |
+| 🗂 **Batch Processing** | Stack or merge multiple uploaded files, preview the dataset, and review quality/completeness tables |
+| 📈 **Comparative Analysis** | Generate and export station-comparison plots from the assembled batch dataset |
 | ❓ **Help & Guide** | Step-by-step walkthrough, plot descriptions, CSV format spec, troubleshooting table |
-| ℹ️ **About** | App identity, feature summary, and data-source/licence details |
+| ℹ️ **About** | App identity, author information, feature summary, and data-source/licence details |
 
 ---
 
@@ -50,8 +52,11 @@ It combines three things into one dashboard:
    **Batch Processing** to combine several files first.
 
 The Country search defaults to **Ghana (GH)** when the country list is loaded,
-and the map uses OpenStreetMap by default. Use the theme button in the header to
-cycle through dark, light, and high-contrast display modes. **Clear Session
+and the map uses OpenStreetMap by default. Analysis includes time-series,
+box, violin, density, and extreme-value plots as well as the existing openair
+plot suite. Use the theme button in the header to cycle through dark, light,
+and high-contrast display modes. The sidebar starts as an icon rail and expands
+on hover; its Recent Events panel shows recent session activity. **Clear Session
 Data** in the sidebar clears current search, fetch, upload, and analysis results
 for this session while keeping the API connection; confirm the action in the
 dialog before it takes effect.
