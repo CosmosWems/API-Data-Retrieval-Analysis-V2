@@ -41,24 +41,8 @@ body.light-theme {
   --font-mono    : 'Share Tech Mono', 'Courier New', monospace;
 }
 
-/* ---- High-contrast theme for improved readability ---------- */
-body.high-contrast-theme {
-  --bg-base      : #000000;
-  --bg-surface   : #000000;
-  --bg-raised    : #111111;
-  --border-dim   : #ffffff;
-  --border-mid   : #ffffff;
-  --text-bright  : #ffffff;
-  --text-base    : #ffffff;
-  --text-muted   : #f0f0f0;
-  --text-label   : #ffff00;
-  --accent-cyan  : #00ffff;
-  --accent-green : #00ff00;
-  --accent-green2: #00ff00;
-  --accent-amber : #ffff00;
-  --accent-red   : #ff6b6b;
-  --font-mono    : 'Share Tech Mono', 'Courier New', monospace;
-}
+/* ---- Remove contrast theme ----------------------------------- */
+/* high-contrast theme removed per request */
 
 body.high-contrast-theme,
 body.high-contrast-theme .content-wrapper,
@@ -67,8 +51,8 @@ body.high-contrast-theme .main-sidebar,
 body.high-contrast-theme .box,
 body.high-contrast-theme .box-body,
 body.high-contrast-theme .box-header {
-  background-color: #000000 !important;
-  color: #ffffff !important;
+  background-color: inherit !important;
+  color: inherit !important;
 }
 body.high-contrast-theme .main-sidebar,
 body.high-contrast-theme .box,
@@ -187,7 +171,7 @@ body.light-theme .table-hover > tbody > tr:hover { background-color: #eaf0f6; }
   background    : transparent;
   border        : 1px solid rgba(255,255,255,.25);
   border-radius : 5px;
-  color         : #aed6f1;
+  color         : #ffffff;
   cursor        : pointer;
   font-size     : 12px;
   font-family   : 'Share Tech Mono', monospace;
@@ -203,7 +187,7 @@ body.light-theme .table-hover > tbody > tr:hover { background-color: #eaf0f6; }
 #theme-toggle-btn:hover {
   background    : rgba(99,179,237,.15);
   border-color  : #63b3ed;
-  color         : #e8f4fd;
+  color         : #ffffff;
 }
 #theme-toggle-btn:focus {
   outline       : 2px solid #63b3ed;
@@ -225,6 +209,14 @@ body, .content-wrapper, .main-sidebar, .left-side {
 .skin-blue .main-sidebar .sidebar-menu > li > a {
   border-left: 4px solid transparent;
   transition: all .15s ease;
+  color: #ffffff !important;
+}
+.skin-blue .main-sidebar .sidebar-menu > li > a > span,
+.skin-blue .main-sidebar .sidebar-menu > li > a > .fa,
+.skin-blue .main-sidebar .sidebar-menu > li > a > .glyphicon,
+.skin-blue .main-sidebar .sidebar-menu > li.header,
+.skin-blue .main-sidebar .user-panel > .info {
+  color: #ffffff !important;
 }
 
 /* ---- API Key Panel ------------------------------------------ */
@@ -520,4 +512,183 @@ table.dataTable thead th { background: #f4f8fb; color: #154360; font-size: 12.5p
   white-space : nowrap;
   overflow    : hidden;
   text-overflow: ellipsis;
+}
+
+/* ---- Sidebar: icon rail that expands on hover ---------------- */
+body.sidebar-mini.sidebar-collapse .main-sidebar {
+  width: 54px !important;
+  overflow: hidden;
+  transition: width .18s ease;
+  z-index: 1035;
+}
+body.sidebar-mini.sidebar-collapse .main-sidebar:hover,
+body.sidebar-mini.sidebar-collapse .main-sidebar:focus-within {
+  width: 260px !important;
+  overflow-y: auto;
+}
+body.sidebar-mini.sidebar-collapse .content-wrapper,
+body.sidebar-mini.sidebar-collapse .right-side,
+body.sidebar-mini.sidebar-collapse .main-footer {
+  margin-left: 54px !important;
+}
+body.sidebar-mini.sidebar-collapse .sidebar-menu > li > a {
+  width: 260px;
+}
+body.sidebar-mini.sidebar-collapse .sidebar-menu > li > a > span:not(.pull-right) {
+  display: none;
+  color: #ffffff !important;
+}
+body.sidebar-mini.sidebar-collapse .sidebar-menu > li > a > span:not(.pull-right) {
+  display: inline;
+  color: #ffffff !important;
+}
+body.sidebar-mini.sidebar-collapse .sidebar-menu > li > a > .fa,
+body.sidebar-mini.sidebar-collapse .sidebar-menu > li > a > .glyphicon {
+  width: 24px;
+  margin-left: -5px;
+  margin-right: 5px;
+}
+body.sidebar-mini.sidebar-collapse .api-key-panel,
+body.sidebar-mini.sidebar-collapse .status-footer {
+  display: none;
+}
+  body.sidebar-mini.sidebar-collapse .main-sidebar:hover .api-key-panel,
+  body.sidebar-mini.sidebar-collapse .main-sidebar:hover .status-footer,
+  body.sidebar-mini.sidebar-collapse .main-sidebar:focus-within .api-key-panel,
+  body.sidebar-mini.sidebar-collapse .main-sidebar:focus-within .status-footer {
+    display: block;
+    color: #ffffff !important;
+  }
+/* ---- Sidebar event log text --------------------------------- */
+.sidebar-event-log {
+  margin-top: 12px;
+  padding: 9px;
+  border: 1px solid #2c4a62;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 11px;
+}
+.sidebar-event-log > strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #ffffff !important;
+}
+.sidebar-event-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 0;
+  border-top: 1px solid rgba(255,255,255,.12);
+  overflow-wrap: anywhere;
+  color: #ffffff !important;
+}
+.sidebar-event-time {
+  flex: 0 0 48px;
+  color: #ffffff !important;
+  font-family: var(--font-mono);
+}
+
+/* ---- Theme styles with explicit selectors for dashboard widgets */
+body.light-theme,
+body.light-theme .content-wrapper,
+body.light-theme .right-side,
+body.light-theme .main-footer {
+  background-color: #f6f8fa !important;
+  color: #17212b !important;
+}
+body.light-theme .box,
+body.light-theme .box-body,
+body.light-theme .box-header {
+  background-color: #ffffff !important;
+  color: #17212b !important;
+}
+body.light-theme .box-body p,
+body.light-theme .box-body li,
+body.light-theme .box-body label,
+body.light-theme .box-body span,
+body.light-theme .box-body dd,
+body.light-theme .box-body td {
+  color: #17212b;
+}
+body.light-theme .box-header .box-title,
+body.light-theme .sec-hdr,
+body.light-theme .help-dl dt {
+  color: #103b5c !important;
+}
+
+/* Explicit high-contrast overrides prevent dashboard skin rules from winning. */
+body.high-contrast-theme,
+body.high-contrast-theme .content-wrapper,
+body.high-contrast-theme .right-side,
+body.high-contrast-theme .main-footer,
+body.high-contrast-theme .main-sidebar,
+body.high-contrast-theme .box,
+body.high-contrast-theme .box-body,
+body.high-contrast-theme .box-header,
+body.high-contrast-theme .tab-content,
+body.high-contrast-theme .nav-tabs-custom,
+body.high-contrast-theme .nav-tabs-custom > .tab-content {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+body.high-contrast-theme .box,
+body.high-contrast-theme .box-header,
+body.high-contrast-theme .form-control,
+body.high-contrast-theme .selectize-input,
+body.high-contrast-theme .selectize-dropdown,
+body.high-contrast-theme .table,
+body.high-contrast-theme .table th,
+body.high-contrast-theme .table td {
+  border-color: #ffffff !important;
+}
+body.high-contrast-theme .box.box-solid > .box-header,
+body.high-contrast-theme .box-header .box-title,
+body.high-contrast-theme .sec-hdr,
+body.high-contrast-theme .sec-hdr .fa,
+body.high-contrast-theme .sec-hdr .glyphicon,
+body.high-contrast-theme .sidebar-event-log > strong {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+body.high-contrast-theme p,
+body.high-contrast-theme li,
+body.high-contrast-theme label,
+body.high-contrast-theme small,
+body.high-contrast-theme span,
+body.high-contrast-theme dd,
+body.high-contrast-theme .box-body,
+body.high-contrast-theme .box-body div,
+body.high-contrast-theme .table,
+body.high-contrast-theme .table td,
+body.high-contrast-theme .table th {
+  color: #ffffff !important;
+}
+body.high-contrast-theme a,
+body.high-contrast-theme .sidebar-event-time {
+  color: #ffff00 !important;
+  text-decoration: underline;
+}
+body.high-contrast-theme input,
+body.high-contrast-theme select,
+body.high-contrast-theme textarea,
+body.high-contrast-theme .selectize-input,
+body.high-contrast-theme .selectize-dropdown,
+body.high-contrast-theme .selectize-dropdown .option {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+body.high-contrast-theme button,
+body.high-contrast-theme .btn {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffffff !important;
+}
+body.high-contrast-theme :focus {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px;
+}
+body.high-contrast-theme .main-sidebar .sidebar-menu > li.active > a,
+body.high-contrast-theme .main-sidebar .sidebar-menu > li > a:hover {
+  background: #1a1a1a !important;
+  border-left-color: #ffff00 !important;
 }

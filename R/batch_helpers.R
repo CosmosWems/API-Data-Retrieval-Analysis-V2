@@ -36,7 +36,7 @@ detect_date_col <- function(df) {
   pat <- cands[grepl("date|time|stamp", cands, ignore.case=TRUE)]
   if (length(pat)) return(pat[1])
   for (col in cands) {
-    vals <- na.omit(as.character(df[[col]]))[seq_len(min(5, nrow(df)))]
+    vals <- head(na.omit(as.character(df[[col]])), 5)
     if (!length(vals)) next
     ok <- suppressWarnings(
       lubridate::parse_date_time(vals,
@@ -353,6 +353,7 @@ stack_summary_stats <- function(df) {
 # ── Station colour palette ────────────────────────────────────
 build_station_palette <- function(stations) {
   n   <- length(stations)
+  if (n == 0) return(setNames(character(0), character(0)))
   pal <- if (n<=9) RColorBrewer::brewer.pal(max(3,n),"Set1")[seq_len(n)]
   else colorRampPalette(RColorBrewer::brewer.pal(9,"Set1"))(n)
   setNames(pal, stations)
@@ -402,19 +403,20 @@ run_comparative_plot <- function(pt, df, station_col, p) {
   openair_type_ok <- c("timePlot","timeVariation","calendarPlot",
                        "smoothTrend","TheilSen","trendLevel",
                        "scatterPlot","windRose","pollutionRose",
-                       "percentileRose","polarPlot","polarAnnulus",
-                       "summaryPlot")
+                       "percentileRose","polarPlot","polarAnnulus")
   if (pt %in% openair_type_ok) {
     df[[station_col]] <- as.character(df[[station_col]])
     pmod <- p
-    if (pt != "summaryPlot") pmod$type <- station_col
+    pmod$type <- station_col
     return(run_openair_plot(pt, df, pmod))
   }
   
-  polls_multi <- if (!is.null(p$pollutant) && length(p$pollutant)>0)
-    intersect(p$pollutant, pc) else pc[seq_len(min(4,length(pc)))]
-  poll_single <- if (!is.null(p$pollutant) && length(p$pollutant)>0)
-    intersect(p$pollutant, pc)[1] else pc[1]
+  polls_valid <- if (!is.null(p$pollutant) && length(p$pollutant) > 0)
+    intersect(p$pollutant, pc) else character(0)
+  polls_multi <- if (length(polls_valid) > 0)
+    polls_valid else pc[seq_len(min(4, length(pc)))]
+  poll_single <- if (length(polls_valid) > 0)
+    polls_valid[1] else if (length(pc) > 0) pc[1] else NULL
   
   switch(pt,
          
@@ -491,7 +493,8 @@ run_comparative_plot <- function(pt, df, station_col, p) {
          
          # ── Inter-station correlation heat-map ─────────────────
          correlation_heatmap = {
-           if (is.null(poll_single)||!poll_single %in% pc)
+           if (is.null(poll_single) || !length(poll_single) ||
+               !poll_single %in% pc)
              stop("Select a valid pollutant for the correlation heat-map.")
            wide <- tidyr::pivot_wider(
              df[,c("date", station_col, poll_single)],

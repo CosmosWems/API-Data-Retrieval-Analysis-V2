@@ -1,30 +1,31 @@
 (function () {
   "use strict";
 
-  var themes = ["dark", "light", "high-contrast"];
+  var themes = ["dark", "light"];
   var labels = {
     dark: "&#9790; Dark",
-    light: "&#9728; Light",
-    "high-contrast": "&#9681; High Contrast"
+    light: "&#9728; Light"
   };
 
   function applyTheme(theme) {
-    var validTheme = themes.indexOf(theme) >= 0 ? theme : "dark";
-    document.body.classList.remove("dark-theme", "light-theme", "high-contrast-theme");
-    document.body.classList.add(validTheme + "-theme");
+    var selected = themes.indexOf(theme) >= 0 ? theme : "dark";
+    document.body.classList.remove(
+      "dark-theme", "light-theme"
+    );
+    document.body.classList.add(selected + "-theme");
 
     var button = document.getElementById("theme-toggle-btn");
     if (button) {
-      button.innerHTML = labels[validTheme];
-      button.setAttribute("aria-label", "Current theme: " + validTheme +
+      button.innerHTML = labels[selected];
+      button.setAttribute("aria-label", "Current theme: " + selected +
         ". Click to change theme.");
-      button.title = "Current theme: " + validTheme + " (click to change)";
+      button.title = "Current theme: " + selected + " (click to change)";
     }
 
     try {
-      window.localStorage.setItem("openaq-theme", validTheme);
+      window.localStorage.setItem("openaq-theme", selected);
     } catch (error) {
-      // The selected theme still applies for this page if storage is unavailable.
+      // Apply the theme for this page even when browser storage is unavailable.
     }
   }
 
@@ -35,14 +36,16 @@
     applyTheme(themes[(themes.indexOf(current) + 1) % themes.length]);
   };
 
-  document.addEventListener("DOMContentLoaded", function () {
-    var savedTheme = "dark";
+  function initialize() {
+    var selected = "dark";
     try {
-      savedTheme = window.localStorage.getItem("openaq-theme") || "dark";
+      selected = window.localStorage.getItem("openaq-theme") || "dark";
     } catch (error) {
-      // Use the default theme if browser storage is unavailable.
+      // Keep the default theme if browser storage is unavailable.
     }
-    applyTheme(savedTheme);
+    applyTheme(selected);
+    document.body.classList.add("sidebar-mini");
+    document.body.classList.remove("sidebar-collapse");
 
     if (window.Shiny) {
       window.Shiny.addCustomMessageHandler("clearSessionFiles", function () {
@@ -55,5 +58,11 @@
         });
       });
     }
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  } else {
+    initialize();
+  }
 }());
