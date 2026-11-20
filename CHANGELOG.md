@@ -1,11 +1,39 @@
 # Changelog
 
-All notable changes for this release are documented below.
+## [Unreleased] — 2026-11-20
 
+### Added
+
+- Added an **Application Author** section to About with Dr. Edmund Ilimoan
+  Yamba's KNUST role and links to his staff profile and Google Scholar page.
+- Added Data-to-Viz inspired **Correlation Heatmap**, **Histogram**,
+  **ECDF**, **Connected Scatter**, and **Part-to-Whole Waffle** plots.
+  Correlation supports Pearson and Spearman methods; the histogram bin count
+  and waffle grouping period are configurable.
+
+### Removed
+
+- Removed the unreliable **Summary Plot** option from single-dataset Analysis
+  and Batch Comparative Analysis, including its controls and plot dispatch.
+- Removed the in-app Change Log page. This file remains the project's update
+  record.
+
+### Preserved
+
+- All other plot choices, analysis workflows, and data processing behavior
+  remain available.
+
+- Plot selection follows the Data-to-Viz approach of matching chart forms to
+  data structure and includes the usual cautions around interpretation.
 
 ---
 
-## [Version 2.0.0] — Batch File Processing added
+This log records user-visible additions, changes, and removals. The earlier
+entry below documents the addition of Batch File Processing.
+
+---
+
+## [Unreleased] — Batch File Processing added
 
 ### Added
 

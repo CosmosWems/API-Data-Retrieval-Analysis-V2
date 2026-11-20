@@ -1,7 +1,22 @@
 # ================================================================
 #  server.R  –  API Data Retrieval & Analysis
+#
+#  Fixes applied:
+#  1. sensors_chk_ui: now renders an actual checkboxGroupInput
+#     from rv$sensors_flat (no more missing checkbox UI).
+#  2. btn_fetch observer: uses rv$sensors_flat; guards against
+#     empty sensor_list; nrow() check instead of length() on dfs.
+#  3. fetch_measurements: result NULL / empty handled gracefully –
+#     no "replacement length mismatch" crash.
+#  4. status_html available from global.R (no "not found" error).
+#  5. .build_params: all pollutant inputs guard against NULL.
+#  6. data_preview_tbl: formatRound only on numeric columns.
+#  7. output$fetch_status_ui initialised as renderUI(NULL) once
+#     at server startup so it exists before btn_fetch fires.
+# ================================================================
 
 server <- function(input, output, session) {
+  server_env <- environment()
 
   rv <- reactiveValues(
     connected     = FALSE,
@@ -20,9 +35,28 @@ server <- function(input, output, session) {
     batch_merged    = NULL,
     batch_active    = NULL,      # whichever was last assembled
     batch_station_col = "station",
-    batch_meta      = NULL
+    batch_meta      = NULL,
+    event_log       = character(0)
   )
 
+  log_event <- function(message) {
+    entry <- paste0(format(Sys.time(), "%H:%M:%S"), "  ", message)
+    tryCatch({
+      shiny::isolate({
+        if (is.null(rv$event_log)) rv$event_log <- character(0)
+        rv$event_log <- tail(c(rv$event_log, entry), 30)
+      })
+    }, error = function(e) {
+      tryCatch({
+        if (!exists(".__event_log_fallback", envir = parent.env(environment()), inherits = FALSE))
+          assign(".__event_log_fallback", character(0), envir = parent.env(environment()))
+        logf <- get(".__event_log_fallback", envir = parent.env(environment()))
+        assign(".__event_log_fallback", tail(c(logf, entry), 30), envir = parent.env(environment()))
+      }, error = function(e2) NULL)
+    })
+    invisible(entry)
+  }
+  log_event("Application session started")
 
   # ---- Rate-limit gauge (updates after every API call) -------
   output$rl_gauge_ui <- renderUI({
@@ -33,6 +67,16 @@ server <- function(input, output, session) {
 
   # Initialise status UI immediately so it always exists
   output$fetch_status_ui <- renderUI(NULL)
+  output$sidebar_event_log_ui <- renderUI({
+    events <- tail(rv$event_log, 12)
+    if (length(events) == 0) return(NULL)
+    tagList(lapply(rev(events), function(event) {
+      parts <- strsplit(event, "  ", fixed = TRUE)[[1]]
+      div(class = "sidebar-event-entry",
+          tags$span(class = "sidebar-event-time", parts[1]),
+          tags$span(paste(parts[-1], collapse = "  ")))
+    }))
+  })
 
   # ============================================================
   #  CONNECTION
@@ -49,9 +93,11 @@ server <- function(input, output, session) {
   observeEvent(input$btn_connect, {
     key <- trimws(input$api_key)
     if (nchar(key) < 10) {
+      log_event("Connection failed: API key too short")
       showNotification("\u274c API key too short.", type = "error")
       return()
     }
+    log_event("Testing OpenAQ connection")
     output$conn_status_ui <- renderUI(
       div(class = "conn-badge conn-testing",
           icon("spinner"), " Testing \u2026"))
@@ -60,9 +106,11 @@ server <- function(input, output, session) {
       rv$api_key   <- key
       rv$connected <- TRUE
       tryCatch({ rv$countries <- get_countries(key) }, error = function(e) NULL)
+      log_event("Connected to OpenAQ")
       showNotification("\u2705 Connected to OpenAQ!", type = "message", duration = 4)
     } else {
       rv$connected <- FALSE
+      log_event(paste("Connection failed:", res$msg))
       showNotification(paste("\u274c", res$msg), type = "error", duration = 8)
     }
   })
@@ -70,6 +118,7 @@ server <- function(input, output, session) {
   observeEvent(input$btn_disconnect, {
     rv$connected <- FALSE
     rv$api_key   <- NULL
+    log_event("Disconnected from OpenAQ")
     showNotification("Disconnected.", type = "warning", duration = 3)
   })
 
@@ -118,6 +167,7 @@ server <- function(input, output, session) {
 
     showNotification("Session data cleared. You can start a new analysis.",
                      type = "message", duration = 5)
+    log_event("Session data cleared")
   })
 
   # ============================================================
@@ -241,6 +291,7 @@ server <- function(input, output, session) {
       return()
     }
     rv$locations <- locs
+    log_event(paste("Found", nrow(locs), "location(s)"))
     showNotification(paste0("\u2705 Found ", nrow(locs), " location(s)."),
                      type = "message", duration = 3)
     update_markers(locs)
@@ -580,6 +631,7 @@ server <- function(input, output, session) {
   # ============================================================
   observeEvent(input$btn_fetch, {
     req(rv$connected, rv$sel_location, length(input$sel_sensors) > 0)
+    log_event(paste("Fetching measurements for", rv$sel_location$name %||% "station"))
     output$fetch_status_ui <- renderUI(
       status_html("\U0001f504 Fetching\u2026", "warn"))
 
@@ -614,6 +666,11 @@ server <- function(input, output, session) {
           } else paste0("s", sid)
         }, error = function(e) paste0("s", sid))
         pname <- make.names(pname)
+        # Two sensors can measure the same parameter – keep both by
+        # making the list name unique instead of overwriting the first.
+        if (pname %in% names(sensor_list))
+          pname <- make.unique(c(names(sensor_list), pname))[
+            length(sensor_list) + 1L]
 
         tryCatch({
           meas <- fetch_measurements(
@@ -650,6 +707,7 @@ server <- function(input, output, session) {
             fetched_at  = Sys.time())
           nr <- nrow(wide)
           nc <- length(pollutant_cols(wide))
+          log_event(paste("Fetched", nr, "rows across", nc, "parameter(s)"))
           output$fetch_status_ui <- renderUI(
             status_html(paste0(
               "\u2705 Fetched ", nr, " rows \u00d7 ", nc,
@@ -832,6 +890,7 @@ server <- function(input, output, session) {
       if (input$data_src == "fetched") {
         req(rv$fetched_data)
         rv$analysis_data <- rv$fetched_data
+        log_event(paste("Prepared", nrow(rv$analysis_data), "rows for analysis"))
         showNotification("\u2705 OpenAQ data prepared!",
                          type = "message", duration = 4)
       } else {
@@ -842,6 +901,8 @@ server <- function(input, output, session) {
           ws_col   = if (nchar(input$col_ws %||% "") > 0) input$col_ws else NULL,
           wd_col   = if (nchar(input$col_wd %||% "") > 0) input$col_wd else NULL,
           date_fmt = input$date_fmt %||% "auto")
+        log_event(paste("Prepared uploaded data with",
+                        nrow(rv$analysis_data), "rows for analysis"))
         showNotification("\u2705 CSV prepared!",
                          type = "message", duration = 4)
       }
@@ -858,15 +919,15 @@ server <- function(input, output, session) {
       return(status_html(
         "Click \u2699\ufe0f Prepare Data first.", "neutral"))
     pc       <- pollutant_cols(df)
+    numeric_pc <- pc[vapply(df[pc], is.numeric, logical(1))]
     wind     <- has_wind(df)
     all_cols <- setdiff(names(df), "date")
+    no_numeric <- status_html(
+      "No numeric variables are available for this plot.", "neutral")
     no_wind  <- status_html(
       "<b>\u26a0\ufe0f</b> Wind columns (ws/wd) not detected.", "warn")
 
     switch(input$plot_type,
-      summaryPlot    = tagList(
-        selectInput("sp_avg", "Averaging:", AVG_TIMES, "day"),
-        checkboxInput("sp_ok", "Period-ok bars", TRUE)),
       timePlot       = tagList(
         checkboxGroupInput("tp_poll", "Variables:", choices = pc,
                            selected = pc[seq_len(min(3, length(pc)))]),
@@ -875,6 +936,45 @@ server <- function(input, output, session) {
                     c("Free" = "free", "Fixed" = "same"), "free"),
         selectInput("tp_type", "Facet by:", FACET_TYPES, "default"),
         checkboxInput("tp_smooth", "Smooth line", FALSE)),
+      boxPlot        = tagList(
+        selectInput("dist_poll", "Pollutant:", pc, pc[1]),
+        selectInput("dist_type", "Group by:", FACET_TYPES, "default")),
+      violinPlot     = tagList(
+        selectInput("dist_poll", "Pollutant:", pc, pc[1]),
+        selectInput("dist_type", "Group by:", FACET_TYPES, "default")),
+      densityPlot    = tagList(
+        selectInput("dist_poll", "Pollutant:", pc, pc[1]),
+        selectInput("dist_type", "Group by:", FACET_TYPES, "default")),
+      histogramPlot  = if (!length(numeric_pc)) no_numeric else tagList(
+        selectInput("hist_poll", "Variable:", numeric_pc, numeric_pc[1]),
+        sliderInput("hist_bins", "Number of bins:", min = 5, max = 100,
+                    value = 30, step = 1)),
+      ecdfPlot       = if (!length(numeric_pc)) no_numeric else
+        selectInput("ecdf_poll", "Variable:", numeric_pc, numeric_pc[1]),
+      correlationHeatmap = {
+        numeric_cols <- names(df)[vapply(df, is.numeric, logical(1))]
+        numeric_cols <- setdiff(numeric_cols,
+                                c("year", "month", "day", "hour", "weekday"))
+        if (length(numeric_cols) < 2)
+          status_html("Load at least two numeric variables to calculate correlation.", "neutral")
+        else tagList(
+          checkboxGroupInput("corr_vars", "Numeric variables:",
+                             choices = numeric_cols,
+                             selected = numeric_cols[seq_len(min(8, length(numeric_cols)))]),
+          selectInput("corr_method", "Correlation method:",
+                      c("Pearson" = "pearson", "Spearman" = "spearman"), "pearson"))
+      },
+      connectedScatter = if (!length(numeric_pc)) no_numeric else
+        selectInput("conn_poll", "Variable:", numeric_pc, numeric_pc[1]),
+      compositionWaffle = if (!length(numeric_pc)) no_numeric else tagList(
+        selectInput("waffle_poll", "Variable:", numeric_pc, numeric_pc[1]),
+        selectInput("waffle_group", "Group observations by:",
+                    c("Month" = "month", "Weekday" = "weekday",
+                      "Season" = "season", "Year" = "year"), "month")),
+      extremePlot    = tagList(
+        selectInput("ext_poll", "Pollutant:", pc, pc[1]),
+        sliderInput("ext_quantile", "Extreme threshold percentile:",
+                    min = 0.80, max = 0.99, value = 0.95, step = 0.01)),
       timeVariation  = tagList(
         checkboxGroupInput("tv_poll", "Pollutant(s):", choices = pc,
                            selected = pc[seq_len(min(2, length(pc)))]),
@@ -987,13 +1087,26 @@ server <- function(input, output, session) {
   .build_params <- function() {
     pt <- input$plot_type
     switch(pt,
-      summaryPlot    = list(avg_time  = input$sp_avg,
-                            period_ok = isTRUE(input$sp_ok)),
       timePlot       = list(pollutant  = input$tp_poll %||% character(0),
                             avg_time   = input$tp_avg,
                             y_relation = input$tp_yrel,
                             type       = input$tp_type,
                             smooth     = input$tp_smooth),
+      boxPlot        = list(pollutant = input$dist_poll,
+                            type = input$dist_type),
+      violinPlot     = list(pollutant = input$dist_poll,
+                            type = input$dist_type),
+      densityPlot    = list(pollutant = input$dist_poll,
+                            type = input$dist_type),
+      histogramPlot  = list(pollutant = input$hist_poll, bins = input$hist_bins),
+      ecdfPlot       = list(pollutant = input$ecdf_poll),
+      correlationHeatmap = list(variables = input$corr_vars %||% character(0),
+                                method = input$corr_method %||% "pearson"),
+      connectedScatter = list(pollutant = input$conn_poll),
+      compositionWaffle = list(pollutant = input$waffle_poll,
+                               group_by = input$waffle_group),
+      extremePlot    = list(pollutant = input$ext_poll,
+                            quantile = input$ext_quantile),
       timeVariation  = list(pollutant = input$tv_poll %||% character(0),
                             normalise = input$tv_norm,
                             type      = input$tv_type),
@@ -1054,6 +1167,9 @@ server <- function(input, output, session) {
                             method = input$sc_method, type = input$sc_type,
                             group  = if (nchar(input$sc_grp %||% "") > 0)
                                        input$sc_grp else NULL),
+      modStats       = list(mod_col = input$mod_mod,
+                            obs_col = input$mod_obs,
+                            type    = input$mod_type %||% "default"),
       list()
     )
   }
@@ -1074,7 +1190,13 @@ server <- function(input, output, session) {
   }
 
   plot_rv <- eventReactive(input$btn_plot, make_plot())
-  output$openair_plot <- renderPlot(req(plot_rv()), res = 96)
+  observeEvent(input$btn_plot, {
+    log_event(paste("Generated analysis plot:", input$plot_type))
+  }, ignoreInit = TRUE)
+  output$openair_plot <- renderPlot({
+    req(rv$analysis_data)
+    req(plot_rv())
+  }, res = 96)
 
   .save_plot <- function(file, type) {
     req(rv$analysis_data, nchar(input$plot_type) > 0)
@@ -1201,12 +1323,12 @@ server <- function(input, output, session) {
           n_params   = length(pollutant_cols(stacked)),
           assembled  = Sys.time()
         )
+        log_event(paste("Stacked", nrow(fi), "files into", nrow(stacked), "rows"))
         warns <- attr(stacked, "load_warnings")
         if (!is.null(warns))
-          showNotification(paste("Warnings:
-", paste(warns, collapse="
-")),
-                           type="warning", duration=10)
+          showNotification(
+            paste0("Warnings:\n", paste(warns, collapse = "\n")),
+            type = "warning", duration = 10)
         dr1 <- format(min(stacked$date, na.rm=TRUE), "%Y-%m-%d")
         dr2 <- format(max(stacked$date, na.rm=TRUE), "%Y-%m-%d")
         output$batch_status_ui <- renderUI(
@@ -1258,12 +1380,12 @@ server <- function(input, output, session) {
           n_params    = length(pollutant_cols(merged)),
           assembled   = Sys.time()
         )
+        log_event(paste("Merged", nrow(fi), "files into", nrow(merged), "rows"))
         warns <- attr(merged, "load_warnings")
         if (!is.null(warns))
-          showNotification(paste("Warnings:
-", paste(warns, collapse="
-")),
-                           type="warning", duration=10)
+          showNotification(
+            paste0("Warnings:\n", paste(warns, collapse = "\n")),
+            type = "warning", duration = 10)
         output$batch_status_ui <- renderUI(
           status_html(paste0(
             "✅ Merged ", nrow(fi), " stations → ",
@@ -1392,8 +1514,14 @@ server <- function(input, output, session) {
       }
     )
   })
+  observeEvent(input$btn_batch_plot, {
+    log_event(paste("Generated comparative plot:", input$batch_plot_type))
+  }, ignoreInit = TRUE)
 
-  output$batch_plot_out <- renderPlot(req(batch_plot_rv()), res=96)
+  output$batch_plot_out <- renderPlot({
+    req(rv$batch_active)
+    req(batch_plot_rv())
+  }, res = 96)
 
   # ---- Batch plot download ----------------------------------
   .save_batch_plot <- function(file, type) {
@@ -1470,6 +1598,11 @@ server <- function(input, output, session) {
              " rows) sent to Analysis tab."),
       type="message", duration=5)
     updateTabItems(session, "main_menu", "analysis")
+  })
+
+  observeEvent(input$btn_go_comparative, {
+    req(rv$batch_active)
+    updateTabItems(session, "main_menu", "comparative")
   })
 
 }

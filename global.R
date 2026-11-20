@@ -124,12 +124,30 @@ WHO_BREAKS <- list(
 
 # Plot catalogue (used by both ui.R and server.R)
 PLOT_CATALOGUE <- list(
-  summaryPlot    = list(label = "Summary Plot",      group = "Summary & Time",
+  timePlot       = list(label = "Time Series Plot",  group = "Summary & Time",
     needs_wind = FALSE,
-    desc = "Data overview: time series + completeness bars for every variable."),
-  timePlot       = list(label = "Time Plot",         group = "Summary & Time",
+    desc = "Pollutant time series averaged to hourly, daily, weekly, or monthly resolution."),
+  boxPlot        = list(label = "Box Plot",          group = "Distribution",
     needs_wind = FALSE,
-    desc = "Multi-variable line plot averaged to hourly/daily/monthly resolution."),
+    desc = "Compare pollutant distributions and spot outliers across time groups."),
+  violinPlot     = list(label = "Violin Plot",       group = "Distribution",
+    needs_wind = FALSE,
+    desc = "Compare pollutant distributions and their density across time groups."),
+  densityPlot    = list(label = "Density Plot",      group = "Distribution",
+    needs_wind = FALSE,
+    desc = "Show the distribution density for a selected pollutant."),
+  histogramPlot  = list(label = "Histogram",         group = "Distribution",
+    needs_wind = FALSE,
+    desc = "Show frequencies across adjustable bins for a selected variable."),
+  ecdfPlot       = list(label = "ECDF Plot",         group = "Distribution",
+    needs_wind = FALSE,
+    desc = "Compare cumulative distributions without choosing histogram bins."),
+  correlationHeatmap = list(label = "Correlation Heatmap", group = "Correlation",
+    needs_wind = FALSE,
+    desc = "Show pairwise Pearson or Spearman correlations among numeric variables."),
+  extremePlot    = list(label = "Extreme Values Plot", group = "Distribution",
+    needs_wind = FALSE,
+    desc = "Plot daily maximum pollutant values and highlight upper-tail exceedances."),
   timeVariation  = list(label = "Time Variation",    group = "Summary & Time",
     needs_wind = FALSE,
     desc = "4-panel: diurnal cycle, day-of-week, monthly mean, and combined hour×weekday."),
@@ -166,6 +184,12 @@ PLOT_CATALOGUE <- list(
   scatterPlot    = list(label = "Scatter Plot",      group = "Model Evaluation",
     needs_wind = FALSE,
     desc = "X vs Y scatter with optional grouping and smooth fit line."),
+  connectedScatter = list(label = "Connected Scatter", group = "Evolution",
+    needs_wind = FALSE,
+    desc = "Connect observations in time order to reveal the path of a selected variable."),
+  compositionWaffle = list(label = "Part-to-Whole Waffle", group = "Part of a Whole",
+    needs_wind = FALSE,
+    desc = "Show each date group's share of total measured concentration as a 100-tile grid."),
   modStats       = list(label = "Model Statistics",  group = "Model Evaluation",
     needs_wind = FALSE,
     desc = "MB, NMB, RMSE, r, FAC2, COE, IOA, MGE, NMGE – standard performance metrics.")
@@ -217,11 +241,7 @@ BATCH_PLOT_CATALOGUE <- list(
   trendLevel = list(
     label = "Trend Level",          group = "openair (faceted by station)",
     needs_wind = FALSE,
-    desc = "2-D heat-map (e.g. hour x month) faceted by station."),
-  summaryPlot = list(
-    label = "Summary Plot",         group = "openair (faceted by station)",
-    needs_wind = FALSE,
-    desc = "Data overview panel for each station printed sequentially.")
+    desc = "2-D heat-map (e.g. hour x month) faceted by station.")
 )
 
 batch_plot_choices <- function() {

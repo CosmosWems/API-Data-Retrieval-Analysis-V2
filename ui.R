@@ -478,6 +478,13 @@ tab_about <- tabItem("about",
                                       "A web application for exploring real-time and historical air quality
              data from the global OpenAQ sensor network, with integrated
              atmospheric data analysis powered by the openair R package."
+                               ),
+                               tags$p(style = "font-size:13px;color:var(--text-base);line-height:1.7;
+                          text-align:left;",
+                                      "Additional chart choices follow the data-type guidance in ",
+                                      tags$a("From Data to Viz",
+                                             href = "https://www.data-to-viz.com/#portfolio",
+                                             target = "_blank", rel = "noopener noreferrer"), "."
                                )
                            )
                        ),
@@ -493,8 +500,8 @@ tab_about <- tabItem("about",
                   directly from the OpenAQ v3 REST API"),
                                    tags$li(tags$b("Inspect"), " data completeness and multi-sensor
                   previews in an openair-ready wide-format table"),
-                                   tags$li(tags$b("Analyse"), " with 15 openair plot types - time series,
-                  calendar, wind/polar, trend, scatter, and more"),
+                                   tags$li(tags$b("Analyse"), " with openair methods plus distribution,
+                  correlation, evolution, and part-to-whole plots"),
                                    tags$li(tags$b("Upload"), " your own CSV and run the same analysis
                   pipeline on any compatible dataset"),
                                    tags$li(tags$b("Export"), " data as CSV, RDS, Excel, or ZIP,
@@ -530,7 +537,7 @@ tab_about <- tabItem("about",
                            )
                        )
                      ),
-                     
+
                      fluidRow(
                        
                        # ---- Technology stack ------------------------------------
@@ -559,7 +566,7 @@ tab_about <- tabItem("about",
                                tags$tr(tags$td(tags$code("lubridate")),
                                        tags$td("Datetime parsing & rounding")),
                                tags$tr(tags$td(tags$code("ggplot2 + gridExtra")),
-                                       tags$td("Summary plot fallback renderer")),
+                                       tags$td("Custom and comparative visualizations")),
                                tags$tr(tags$td(tags$code("DT")),
                                        tags$td("Interactive data tables")),
                                tags$tr(tags$td(tags$code("openxlsx / zip")),
@@ -723,6 +730,20 @@ tab_about <- tabItem("about",
                                         target = "_blank")
                                ),
                                br(),
+                               tags$dt("Dr. Edmund Ilimoan Yamba, PhD."),
+                               tags$dd(
+                                 "Senior Lecturer and Research Scientist, Department of Meteorology and Climate Science, ",
+                                 tags$em("Kwame Nkrumah University of Science and Technology (KNUST), Ghana.")
+                               ),
+                               tags$dd(
+                                 tags$a("| KNUST staff profile",
+                                        href = "https://webapps.knust.edu.gh/staff/dirsearch/profile/summary/59c2b3f5b7b9.html",
+                                        target = "_blank", rel = "noopener noreferrer"),
+                                 tags$a(" | Google Scholar",
+                                        href = "https://scholar.google.com/citations?user=Br4DbcIAAAAJ&hl=en",
+                                        target = "_blank", rel = "noopener noreferrer")
+                               ),
+                               br(),
                                tags$dt("Victoria Owusu Tawiah, PhD."),
                                tags$dd(
                                  "Air Quality Program Lead, ",
@@ -810,8 +831,6 @@ tab_batch <- tabItem("batch",
                                         ),
                                         box(title = "Step 2 : Stack Result",
                                             status = "info", solidHeader = TRUE, width = 7,
-                                            uiOutput("batch_status_ui"),
-                                            br(),
                                             div(class = "status-box status-neutral",
                                                 style = "font-size:12.5px;",
                                                 tags$b("What happens when you stack:"), br(),
@@ -858,7 +877,7 @@ tab_batch <- tabItem("batch",
                                                      "used as-is : the typed name below only applies to files with none."),
                                             uiOutput("station_name_rows_ui"),
                                             br(),
-                                            uiOutput("batch_status_ui")
+                                            helpText("Processing status is shown below the upload panels.")
                                         )
                                       )
                      ),
@@ -887,6 +906,14 @@ tab_batch <- tabItem("batch",
                            DTOutput("batch_preview_tbl")
                        )
                      ),
+                     fluidRow(
+                       column(12,
+                         actionButton("btn_go_comparative",
+                                        "Open Comparative Analysis",
+                                        icon = icon("chart-line"),
+                                        class = "btn-primary")
+                       )
+                     ),
                      
                      # ── QC TABLES ──────────────────────────────────────────────
                      fluidRow(
@@ -904,77 +931,79 @@ tab_batch <- tabItem("batch",
                        )
                      ),
                      
-                     # ── COMPARATIVE ANALYSIS ───────────────────────────────────
-                     fluidRow(
-                       box(title = "Step 5 : Comparative Analysis Controls",
-                           status = "warning", solidHeader = TRUE, width = 4,
-                           
-                           conditionalPanel("input.batch_mode_radio == 'stack'",
-                                            div(class="status-box status-warn",
-                                                style="font-size:12px;margin-bottom:10px;",
-                                                icon("info-circle"),
-                                                " In Stack mode the ",
-                                                tags$code("source_file"),
-                                                " column is used as the grouping variable.
-               For proper station comparison use Merge mode."
-                                            )
-                           ),
-                           
-                           selectInput("batch_plot_type", "Plot type:",
-                                       choices = batch_plot_choices()),
-                           uiOutput("batch_plot_desc_ui"),
-                           hr(),
-                           uiOutput("batch_avg_ui"),
-                           
-                           # Multi-parameter plots
-                           conditionalPanel(
-                             "input.batch_plot_type == 'station_timeseries' ||
-           input.batch_plot_type == 'boxplot_station'    ||
-           input.batch_plot_type == 'mean_bar'           ||
-           input.batch_plot_type == 'timePlot'           ||
-           input.batch_plot_type == 'timeVariation'      ||
-           input.batch_plot_type == 'smoothTrend'        ||
-           input.batch_plot_type == 'summaryPlot'",
-                             uiOutput("batch_param_ui")
-                           ),
-                           
-                           # Single-parameter plots
-                           conditionalPanel(
-                             "input.batch_plot_type == 'correlation_heatmap' ||
-           input.batch_plot_type == 'calendarPlot'        ||
-           input.batch_plot_type == 'TheilSen'            ||
-           input.batch_plot_type == 'trendLevel'          ||
-           input.batch_plot_type == 'pollutionRose'       ||
-           input.batch_plot_type == 'percentileRose'      ||
-           input.batch_plot_type == 'polarPlot'           ||
-           input.batch_plot_type == 'polarAnnulus'",
-                             uiOutput("batch_single_param_ui")
-                           ),
-                           hr(),
-                           actionButton("btn_batch_plot", "Generate Comparative Plot",
-                                        icon  = icon("bar-chart"),
-                                        class = "btn-success btn-block btn-lg"),
-                           br(),
-                           div(style = "display:flex;gap:5px;",
-                               downloadButton("batch_dl_png", "PNG",
-                                              class="btn-default btn-sm", style="flex:1;"),
-                               downloadButton("batch_dl_pdf", "PDF",
-                                              class="btn-default btn-sm", style="flex:1;"),
-                               downloadButton("batch_dl_svg", "SVG",
-                                              class="btn-default btn-sm", style="flex:1;")
+)
+
+# ================================================================
+#  TAB 7  COMPARATIVE ANALYSIS
+# ================================================================
+tab_comparative <- tabItem("comparative",
+                           sec_hdr("chart-line", "Comparative Analysis"),
+                           fluidRow(
+                             box(title = "Comparative Plot Controls",
+                                 status = "warning", solidHeader = TRUE, width = 4,
+                                 conditionalPanel("input.batch_mode_radio == 'stack'",
+                                   div(class = "status-box status-warn",
+                                       style = "font-size:12px;margin-bottom:10px;",
+                                       icon("info-circle"),
+                                       " Stack mode groups by ",
+                                       tags$code("source_file"),
+                                       ". Use Merge mode to compare stations."
+                                   )
+                                 ),
+                                 selectInput("batch_plot_type", "Plot type:",
+                                             choices = batch_plot_choices()),
+                                 uiOutput("batch_plot_desc_ui"),
+                                 hr(),
+                                 uiOutput("batch_avg_ui"),
+                                 conditionalPanel(
+                                   "input.batch_plot_type == 'station_timeseries' ||
+                                    input.batch_plot_type == 'boxplot_station' ||
+                                    input.batch_plot_type == 'mean_bar' ||
+                                    input.batch_plot_type == 'timePlot' ||
+                                    input.batch_plot_type == 'timeVariation' ||
+                                    input.batch_plot_type == 'smoothTrend'",
+                                   uiOutput("batch_param_ui")
+                                 ),
+                                 conditionalPanel(
+                                   "input.batch_plot_type == 'correlation_heatmap' ||
+                                    input.batch_plot_type == 'calendarPlot' ||
+                                    input.batch_plot_type == 'TheilSen' ||
+                                    input.batch_plot_type == 'trendLevel' ||
+                                    input.batch_plot_type == 'pollutionRose' ||
+                                    input.batch_plot_type == 'percentileRose' ||
+                                    input.batch_plot_type == 'polarPlot' ||
+                                    input.batch_plot_type == 'polarAnnulus'",
+                                   uiOutput("batch_single_param_ui")
+                                 ),
+                                 hr(),
+                                 actionButton("btn_batch_plot", "Generate Comparative Plot",
+                                              icon = icon("bar-chart"),
+                                              class = "btn-success btn-block btn-lg"),
+                                 br(),
+                                 div(style = "display:flex;gap:5px;",
+                                     downloadButton("batch_dl_png", "PNG",
+                                                    class = "btn-default btn-sm",
+                                                    style = "flex:1;"),
+                                     downloadButton("batch_dl_pdf", "PDF",
+                                                    class = "btn-default btn-sm",
+                                                    style = "flex:1;"),
+                                     downloadButton("batch_dl_svg", "SVG",
+                                                    class = "btn-default btn-sm",
+                                                    style = "flex:1;")
+                                 )
+                             ),
+                             box(title = "Comparative Plot Output",
+                                 status = "primary", solidHeader = TRUE, width = 8,
+                                 plotOutput("batch_plot_out", height = "570px")
+                             )
                            )
-                       ),
-                       box(title = "Step 5 : Comparative Plot Output",
-                           status = "primary", solidHeader = TRUE, width = 8,
-                           plotOutput("batch_plot_out", height = "570px")
-                       )
-                     )
 )
 
 # ================================================================
 #  SIDEBAR
 # ================================================================
 sidebar <- dashboardSidebar(width = 260,
+                            collapsed = FALSE,
                             useShinyjs(),
                             
                             div(class = "api-key-panel",
@@ -1002,6 +1031,8 @@ sidebar <- dashboardSidebar(width = 260,
                                                  icon = icon("file-export")),
                                         menuItem("Batch Processing",   tabName = "batch",
                                                  icon = icon("layer-group")),
+                                        menuItem("Comparative Analysis", tabName = "comparative",
+                                                 icon = icon("chart-line")),
                                         menuItem("Help & Guide",       tabName = "help",
                                                  icon = icon("question-circle")),
                                         menuItem("About",              tabName = "about",
@@ -1014,6 +1045,10 @@ sidebar <- dashboardSidebar(width = 260,
                                              icon = icon("trash"),
                                              class = "btn-warning btn-block btn-sm",
                                              title = "Clear this session's search and analysis data"),
+                                div(class = "sidebar-event-log",
+                                    tags$strong(icon("history"), " Recent Events"),
+                                    div(class = "sidebar-event-log-list",
+                                        uiOutput("sidebar_event_log_ui"))),
                                 uiOutput("rl_gauge_ui")
                             )
 )
@@ -1032,7 +1067,7 @@ ui <- dashboardPage(
     titleWidth = 260,
     tags$li(class = "dropdown",
             tags$button(id = "theme-toggle-btn", onclick = "toggleTheme()",
-                        HTML("&#9790; Dark"), title = "Cycle theme: dark, light, high contrast",
+                        HTML("&#9790; Dark"), title = "Cycle theme: dark, light",
                         `aria-label` = "Cycle color theme")),
     tags$li(class = "dropdown",
             tags$a(href = "https://docs.openaq.org", target = "_blank",
@@ -1045,11 +1080,10 @@ ui <- dashboardPage(
   ),
   
   sidebar,
-  
   dashboardBody(
     tags$head(
-      tags$link(rel = "stylesheet", href = "styles.css"),
-      tags$script(src = "theme.js"),
+      tags$link(rel = "stylesheet", href = "styles.css?v=2.1"),
+      tags$script(src = "theme.js?v=2.1"),
       tags$link(rel = "stylesheet",
                 href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"),
       tags$link(rel = "stylesheet",
@@ -1060,7 +1094,8 @@ ui <- dashboardPage(
         });
       '))
     ),
-    tabItems(tab_explorer, tab_fetch, tab_analysis, tab_export, tab_batch, tab_help, tab_about),
+    tabItems(tab_explorer, tab_fetch, tab_analysis, tab_export, tab_batch,
+             tab_comparative, tab_help, tab_about),
     tags$footer(class = "main-footer",
                 paste0("API Data Retrieval & Analysis v", APP_VERSION,
                        "  \u00b7  R Shiny + openair  \u00b7  "),
